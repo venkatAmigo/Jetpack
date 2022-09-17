@@ -1,5 +1,7 @@
 package com.example.jetpack
 
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,19 +9,29 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
-class MainViewModel: ViewModel() {
+class MainViewModel: ViewModel(){
 
     private val users: MutableLiveData<List<User>> = MutableLiveData()
 
     val liveUsers :LiveData<List<User>>
     get() = users
 
-    fun getUsers():LiveData<List<User>>{
+    var welcomeText = "Great"
+
+    init {
+        getUsers()
+    }
+    fun getUsers(){
         viewModelScope.launch {
-            users.value = Api.getUsers()
+            users.postValue(Api.getUsers())
         }
-        return liveUsers
+    }
+    fun shuffleData(){
+        val lists =  users.value as MutableList<User>
+        lists.shuffle(Random(System.currentTimeMillis()))
+        users.postValue(lists)
     }
     fun changeUsers(){
         viewModelScope.launch {
